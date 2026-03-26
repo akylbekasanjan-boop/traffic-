@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { z } from "zod";
 
 const bodySchema = z.object({
-  leadNumber: z.string().trim().min(1).max(64),
+  phone: z.string().trim().min(8).max(32),
   name: z.string().trim().min(2).max(80),
 });
 
@@ -18,13 +18,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const { leadNumber, name } = parsed.data;
+  const { phone, name } = parsed.data;
 
   // Дедупликация атомарно: один номер = одно лицо.
   // При конфликте (номер уже есть) запись не обновляем и возвращаем `alreadyRegistered=true`.
   const upsertRes = await supabaseAdmin
     .from("submissions")
-    .upsert([{ lead_number: leadNumber, name }], {
+    .upsert([{ lead_number: phone, name }], {
       onConflict: "lead_number",
       ignoreDuplicates: true,
     })

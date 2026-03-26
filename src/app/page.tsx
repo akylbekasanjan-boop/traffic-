@@ -11,11 +11,21 @@ type SubmitResponse = {
 };
 
 export default function HomePage() {
-  const [leadNumber, setLeadNumber] = useState("");
+  const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  function normalizePhone(raw: string) {
+    // Keep + and digits only
+    const trimmed = raw.trim();
+    let out = "";
+    for (const ch of trimmed) {
+      if ((ch >= "0" && ch <= "9") || (ch === "+" && out.length === 0)) out += ch;
+    }
+    return out;
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -23,7 +33,13 @@ export default function HomePage() {
     setError(null);
     setMessage(null);
 
-    const payload = { leadNumber: leadNumber.trim(), name: name.trim() };
+    const payload = { phone: normalizePhone(phone), name: name.trim() };
+
+    if (payload.phone.length < 8) {
+      setLoading(false);
+      setError("Введите корректный номер телефона");
+      return;
+    }
 
     try {
       const res = await fetch("/api/submit", {
@@ -38,7 +54,7 @@ export default function HomePage() {
       }
 
       if (data && data.ok && data.alreadyRegistered) {
-        setMessage("Этот номер уже был зарегистрирован ранее. Спасибо!");
+        setMessage("Этот номер телефона уже был зарегистрирован ранее. Спасибо!");
         return;
       }
       setMessage("Спасибо! Предзапись отправлена.");
@@ -54,17 +70,17 @@ export default function HomePage() {
       <div style={styles.card}>
         <h1 style={styles.h1}>Анкета предзаписи</h1>
         <p style={styles.p}>
-          Заполните номер и имя. После отправки данные попадут в вашу статистику.
+          Укажите номер телефона и имя. После отправки данные попадут в статистику.
         </p>
 
         <form onSubmit={onSubmit} style={styles.form}>
           <label style={styles.label}>
-            Номер
+            Номер телефона
             <input
-              value={leadNumber}
-              onChange={(e) => setLeadNumber(e.target.value)}
-              placeholder="Например: 12"
-              inputMode="numeric"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+7 999 123-45-67"
+              inputMode="tel"
               style={styles.input}
               maxLength={64}
               required
@@ -105,7 +121,7 @@ const styles: Record<string, CSSProperties> = {
   },
   card: {
     width: "100%",
-    maxWidth: 720,
+    maxWidth: 640,
     background: "var(--card)",
     border: "1px solid var(--border)",
     borderRadius: 18,

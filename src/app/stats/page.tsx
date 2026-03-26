@@ -113,13 +113,13 @@ export default async function StatsPage() {
         <h2 style={styles.h2}>Последние заполнения</h2>
         {recentSubs && recentSubs.length ? (
           <div style={styles.table}>
-            <div style={styles.thead}>
-              <div>Номер</div>
+            <div style={styles.thead3}>
+              <div>Телефон</div>
               <div>Имя</div>
               <div>Дата</div>
             </div>
             {recentSubs.map((s: any) => (
-              <div key={s.lead_number} style={styles.trow}>
+              <div key={s.lead_number} style={styles.trow3}>
                 <div style={styles.mono}>{s.lead_number}</div>
                 <div style={{ fontWeight: 700 }}>{s.name}</div>
                 <div style={styles.mono}>
@@ -144,9 +144,14 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     gap: 12,
     marginBottom: 14,
+    flexWrap: "wrap",
   },
   link: { color: "var(--text)", fontWeight: 700, textDecoration: "underline" },
-  grid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+    gap: 12,
+  },
   card: {
     background: "var(--card)",
     border: "1px solid var(--border)",
@@ -159,7 +164,7 @@ const styles: Record<string, CSSProperties> = {
   metric: { marginTop: 10, fontWeight: 700 },
   muted: { color: "var(--muted)", fontWeight: 600 },
   mono: { fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" },
-  table: { marginTop: 12 },
+  table: { marginTop: 12, overflowX: "auto" },
   thead: {
     display: "grid",
     gridTemplateColumns: "1.1fr 0.9fr",
@@ -168,6 +173,7 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 800,
     padding: "6px 0",
     borderBottom: "1px solid var(--border)",
+    minWidth: 520,
   },
   trow: {
     display: "grid",
@@ -175,6 +181,25 @@ const styles: Record<string, CSSProperties> = {
     gap: 10,
     padding: "10px 0",
     borderBottom: "1px solid rgba(255,255,255,0.08)",
+    minWidth: 520,
+  },
+  thead3: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 0.9fr 1.2fr",
+    gap: 10,
+    color: "var(--muted)",
+    fontWeight: 800,
+    padding: "6px 0",
+    borderBottom: "1px solid var(--border)",
+    minWidth: 720,
+  },
+  trow3: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 0.9fr 1.2fr",
+    gap: 10,
+    padding: "10px 0",
+    borderBottom: "1px solid rgba(255,255,255,0.08)",
+    minWidth: 720,
   },
 };
 
