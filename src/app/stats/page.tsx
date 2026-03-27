@@ -7,6 +7,24 @@ import type { CSSProperties } from "react";
 
 export const dynamic = "force-dynamic";
 
+/** Дата и время заявки (в БД хранится UTC; показываем в времени Бишкека, с секундами). */
+function formatLeadDateTime(iso: string) {
+  try {
+    return new Date(iso).toLocaleString("ru-RU", {
+      timeZone: "Asia/Bishkek",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+  } catch {
+    return iso;
+  }
+}
+
 export default async function StatsPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("stats_jwt")?.value;
@@ -118,19 +136,23 @@ export default async function StatsPage() {
 
       <div style={styles.card}>
         <h2 style={styles.h2}>Последние заполнения</h2>
+        <div style={styles.tableHint}>
+          У каждого номера — дата и время первой заявки (повтор с тем же номером не меняет время).
+          Время: Бишкек (UTC+6).
+        </div>
         {recentSubs && recentSubs.length ? (
           <div style={styles.table}>
             <div style={styles.thead3}>
               <div>Телефон</div>
               <div>Имя</div>
-              <div>Дата</div>
+              <div>Дата и время заявки</div>
             </div>
             {recentSubs.map((s: any) => (
               <div key={s.lead_number} style={styles.trow3}>
                 <div style={styles.mono}>{s.lead_number}</div>
                 <div style={{ fontWeight: 700 }}>{s.name}</div>
                 <div style={styles.mono}>
-                  {new Date(s.created_at).toLocaleString("ru-RU")}
+                  {formatLeadDateTime(s.created_at)}
                 </div>
               </div>
             ))}
@@ -184,6 +206,15 @@ const styles: Record<string, CSSProperties> = {
     marginBottom: 12,
   },
   h2: { margin: 0, fontSize: 16 },
+  tableHint: {
+    marginTop: 8,
+    marginBottom: 4,
+    color: "var(--muted)",
+    fontWeight: 600,
+    fontSize: 12,
+    lineHeight: 1.45,
+    maxWidth: 720,
+  },
   metric: { marginTop: 10, fontWeight: 700 },
   muted: { color: "var(--muted)", fontWeight: 600 },
   mono: { fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" },
