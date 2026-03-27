@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { normalizePhoneForDedup } from "@/lib/phone";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -18,7 +19,15 @@ export async function POST(req: Request) {
     );
   }
 
-  const { phone, name } = parsed.data;
+  const phone = normalizePhoneForDedup(parsed.data.phone);
+  const { name } = parsed.data;
+
+  if (phone.length < 10 || phone.length > 15) {
+    return NextResponse.json(
+      { ok: false, error: "Введите корректный номер телефона" },
+      { status: 400 },
+    );
+  }
 
   // Дедупликация атомарно: один номер = одно лицо.
   // При конфликте (номер уже есть) запись не обновляем и возвращаем `alreadyRegistered=true`.

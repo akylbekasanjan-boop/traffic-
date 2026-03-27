@@ -39,20 +39,27 @@ export default async function StatsPage() {
         .limit(5),
     ]);
 
-  const totalUnique = typeof totalCount === "number" ? totalCount : 0;
+  const totalLeads = typeof totalCount === "number" ? totalCount : 0;
 
   return (
     <div style={styles.wrap}>
       <div style={styles.topbar}>
         <div>
           <h1 style={{ margin: 0, fontSize: 22 }}>Статистика предзаписи</h1>
-          <div style={{ marginTop: 6, color: "var(--muted)", fontWeight: 600 }}>
-            Всего уникальных заполнений: {totalUnique}
+          <div style={{ marginTop: 8, color: "var(--muted)", fontWeight: 600, maxWidth: 560 }}>
+            Один номер телефона = один лид. Повторная отправка с тем же номером в таблицу не
+            добавляется.
           </div>
         </div>
         <Link href="/" style={styles.link}>
           На форму
         </Link>
+      </div>
+
+      <div style={styles.kpiCard}>
+        <div style={styles.kpiLabel}>Всего лидов (уникальных номеров)</div>
+        <div style={styles.kpiNumber}>{totalLeads}</div>
+        <div style={styles.kpiHint}>Это количество строк в базе — по одной на каждый телефон.</div>
       </div>
 
       <div style={styles.grid}>
@@ -68,7 +75,7 @@ export default async function StatsPage() {
                 </span>
               </div>
               <div style={styles.metric}>
-                Заполнений:{" "}
+                Лидов за период:{" "}
                 <span style={styles.mono}>{latestSnapshot.total_submissions}</span>
               </div>
               <div style={{ marginTop: 10, color: "var(--muted)", fontWeight: 600 }}>
@@ -91,7 +98,7 @@ export default async function StatsPage() {
             <div style={styles.table}>
               <div style={styles.thead}>
                 <div>Период</div>
-                <div>Заполнений</div>
+                <div>Лидов</div>
               </div>
               {snapshots.map((s: any) => (
                 <div key={s.period_start} style={styles.trow}>
@@ -138,6 +145,22 @@ export default async function StatsPage() {
 
 const styles: Record<string, CSSProperties> = {
   wrap: { padding: 16, maxWidth: 1100, margin: "0 auto" },
+  kpiCard: {
+    background: "linear-gradient(135deg, rgba(124,58,237,0.25), rgba(59,130,246,0.2))",
+    border: "1px solid var(--border)",
+    borderRadius: 18,
+    padding: "20px 22px",
+    marginBottom: 14,
+  },
+  kpiLabel: { color: "var(--muted)", fontWeight: 700, fontSize: 14 },
+  kpiNumber: {
+    marginTop: 6,
+    fontSize: 44,
+    fontWeight: 800,
+    letterSpacing: "-0.02em",
+    lineHeight: 1.05,
+  },
+  kpiHint: { marginTop: 8, color: "var(--muted)", fontWeight: 600, fontSize: 13 },
   topbar: {
     display: "flex",
     alignItems: "flex-start",

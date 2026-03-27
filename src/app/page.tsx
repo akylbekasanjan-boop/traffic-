@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties, type FormEvent } from "react";
+import { normalizePhoneForDedup } from "@/lib/phone";
 
 type SubmitResponse = {
   ok: true;
@@ -17,25 +18,15 @@ export default function HomePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function normalizePhone(raw: string) {
-    // Keep + and digits only
-    const trimmed = raw.trim();
-    let out = "";
-    for (const ch of trimmed) {
-      if ((ch >= "0" && ch <= "9") || (ch === "+" && out.length === 0)) out += ch;
-    }
-    return out;
-  }
-
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setMessage(null);
 
-    const payload = { phone: normalizePhone(phone), name: name.trim() };
+    const payload = { phone: normalizePhoneForDedup(phone), name: name.trim() };
 
-    if (payload.phone.length < 8) {
+    if (payload.phone.length < 10) {
       setLoading(false);
       setError("Введите корректный номер телефона");
       return;
@@ -71,6 +62,9 @@ export default function HomePage() {
         <h1 style={styles.h1}>Анкета предзаписи</h1>
         <p style={styles.p}>
           Укажите номер телефона и имя. После отправки данные попадут в статистику.
+        </p>
+        <p style={styles.note}>
+          Один номер можно отправить только один раз — повторы не создают новую заявку.
         </p>
 
         <form onSubmit={onSubmit} style={styles.form}>
@@ -130,6 +124,7 @@ const styles: Record<string, CSSProperties> = {
   },
   h1: { margin: 0, fontSize: 26 },
   p: { marginTop: 8, color: "var(--muted)", fontWeight: 600 },
+  note: { marginTop: 6, color: "var(--muted)", fontWeight: 600, fontSize: 13, lineHeight: 1.4 },
   form: { marginTop: 16, display: "flex", flexDirection: "column", gap: 12 },
   label: { display: "flex", flexDirection: "column", gap: 8, fontWeight: 700 },
   input: {
